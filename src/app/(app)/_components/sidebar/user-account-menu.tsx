@@ -15,28 +15,40 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { logout } from '@/app/actions/auth'
 
-function getInitials(email: string) {
-  return email.substring(0, 2).toUpperCase()
+
+function getInitials(nameOrEmail: string) {
+  if (!nameOrEmail) return '';
+  const parts = nameOrEmail.trim().split(/\s+/);
+  if (parts.length === 1) {
+    // Single word (likely email or username)
+    return nameOrEmail.substring(0, 2).toUpperCase();
+  }
+  // Use first letter of first and last word
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
-export function UserAccountMenu({ user }: { user: User }) {
+export function UserAccountMenu({ user }: { user: User & { display_name?: string | null } }) {
   const handleLogout = async () => {
-    await logout()
-  }
+    await logout();
+  };
+
+  // Prefer display_name if available, fallback to email
+  // Note: user.display_name is not standard on Supabase User, but we can pass it in layout
+  const displayName = (user as any).display_name || user.email || '';
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-8 w-8">
-            <AvatarFallback>{getInitials(user.email!)}</AvatarFallback>
+            <AvatarFallback>{getInitials(displayName)}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">{user.email}</p>
+            <p className="text-sm font-medium leading-none">{displayName}</p>
             <p className="text-xs leading-none text-muted-foreground">CANary User</p>
           </div>
         </DropdownMenuLabel>
@@ -56,5 +68,5 @@ export function UserAccountMenu({ user }: { user: User }) {
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-  )
+  );
 }

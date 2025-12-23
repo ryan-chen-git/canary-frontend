@@ -22,7 +22,7 @@ export default async function AdminPage() {
     .single()
 
   if (profile?.role !== 'admin') {
-    redirect('/logs')
+    redirect('/files')
   }
 
   // Fetch statistics
@@ -50,45 +50,45 @@ export default async function AdminPage() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <Card className="py-2">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 px-4 py-2">
             <CardTitle className="text-sm font-medium">Total Users</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
+          <CardContent className="px-4 py-0 pb-2">
             <div className="text-2xl font-bold">{totalUsers || 0}</div>
             <p className="text-xs text-muted-foreground">Registered accounts</p>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Upload Groups</CardTitle>
+        <Card className="py-2">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 px-4 py-2">
+            <CardTitle className="text-sm font-medium">Collections</CardTitle>
             <Database className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
+          <CardContent className="px-4 py-0 pb-2">
             <div className="text-2xl font-bold">{totalGroups || 0}</div>
-            <p className="text-xs text-muted-foreground">Total groups created</p>
+            <p className="text-xs text-muted-foreground">Total collections</p>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <Card className="py-2">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 px-4 py-2">
             <CardTitle className="text-sm font-medium">Files</CardTitle>
             <Activity className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
+          <CardContent className="px-4 py-0 pb-2">
             <div className="text-2xl font-bold">{totalFiles || 0}</div>
             <p className="text-xs text-muted-foreground">Files stored</p>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <Card className="py-2">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 px-4 py-2">
             <CardTitle className="text-sm font-medium">Storage</CardTitle>
             <Shield className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
+          <CardContent className="px-4 py-0 pb-2">
             <div className="text-2xl font-bold">-</div>
             <p className="text-xs text-muted-foreground">Coming soon</p>
           </CardContent>

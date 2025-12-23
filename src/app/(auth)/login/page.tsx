@@ -33,7 +33,7 @@ export default function LoginPage() {
         return
       }
 
-      router.push('/logs')
+      router.push('/files')
       router.refresh()
     } catch (err) {
       setError('An unexpected error occurred')

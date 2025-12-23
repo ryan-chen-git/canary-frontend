@@ -1,7 +1,6 @@
 'use client'
 
 import { LogOut, Settings, User as UserIcon } from 'lucide-react'
-import type { User } from '@supabase/supabase-js'
 
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import {
@@ -15,11 +14,25 @@ import {
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from '@/components/ui/sidebar'
 import { logout } from '@/app/actions/auth'
 
-function getInitials(email: string) {
-  return email.substring(0, 2).toUpperCase()
+interface NavUserProps {
+  user: {
+    name: string
+    email: string
+    avatar: string
+  }
 }
 
-export function NavUser({ user }: { user: User }) {
+function getInitials(name: string): string {
+  const parts = name.trim().split(/\s+/)
+  if (parts.length >= 2) {
+    // First letter of first name + first letter of last name
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+  }
+  // Just first letter if only one name
+  return name.charAt(0).toUpperCase()
+}
+
+export function NavUser({ user }: NavUserProps) {
   const { isMobile } = useSidebar()
 
   const handleLogout = async () => {
@@ -36,11 +49,11 @@ export function NavUser({ user }: { user: User }) {
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarFallback className="rounded-lg">{getInitials(user.email!)}</AvatarFallback>
+                <AvatarFallback className="rounded-lg">{getInitials(user.name)}</AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{user.email}</span>
-                <span className="truncate text-muted-foreground text-xs">CANary User</span>
+                <span className="truncate font-medium">{user.name}</span>
+                <span className="truncate text-muted-foreground text-xs">{user.email}</span>
               </div>
             </SidebarMenuButton>
           </DropdownMenuTrigger>
@@ -53,11 +66,11 @@ export function NavUser({ user }: { user: User }) {
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarFallback className="rounded-lg">{getInitials(user.email!)}</AvatarFallback>
+                  <AvatarFallback className="rounded-lg">{getInitials(user.name)}</AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">{user.email}</span>
-                  <span className="truncate text-muted-foreground text-xs">CANary User</span>
+                  <span className="truncate font-medium">{user.name}</span>
+                  <span className="truncate text-muted-foreground text-xs">{user.email}</span>
                 </div>
               </div>
             </DropdownMenuLabel>

@@ -10,7 +10,7 @@ export default async function AuthLayout({ children }: { children: ReactNode }) 
 
   // If already logged in, redirect to logs
   if (user) {
-    redirect('/logs')
+    redirect('/files')
   }
 
   return (

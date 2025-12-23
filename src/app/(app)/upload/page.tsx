@@ -161,7 +161,7 @@ export default function UploadPage() {
       }
 
       // Success! Redirect to the new group
-      router.push(`/logs/${group.id}`)
+      router.push(`/files/${group.id}`)
       
     } catch (err) {
       console.error('Upload error:', err)
@@ -338,7 +338,7 @@ export default function UploadPage() {
           <Button
             type="button"
             variant="outline"
-            onClick={() => router.push('/logs')}
+            onClick={() => router.push('/files')}
             disabled={uploading}
           >
             Cancel

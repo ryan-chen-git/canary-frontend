@@ -33,7 +33,7 @@ export default async function AppLayout({ children }: Readonly<{ children: React
 
   return (
     <SidebarProvider defaultOpen={defaultOpen} suppressHydrationWarning>
-      <AppSidebar variant={variant} collapsible={collapsible} user={user} />
+      <AppSidebar variant={variant} collapsible={collapsible} user={user} displayName={profile?.display_name} />
       <SidebarInset
         className={cn(
           '[html[data-content-layout=centered]_&]:mx-auto! [html[data-content-layout=centered]_&]:max-w-screen-2xl!',
@@ -54,7 +54,7 @@ export default async function AppLayout({ children }: Readonly<{ children: React
             </div>
             <div className="flex items-center gap-2">
               <ThemeSwitcher />
-              <UserAccountMenu user={user} />
+              <UserAccountMenu user={{ ...user, display_name: profile?.display_name }} />
             </div>
           </div>
         </header>

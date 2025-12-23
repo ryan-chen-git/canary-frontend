@@ -18,14 +18,15 @@ import { APP_CONFIG } from '@/config/app-config'
 import { sidebarItems } from '@/navigation/sidebar/sidebar-items'
 import { usePreferencesStore } from '@/stores/preferences/preferences-provider'
 
-import { NavMain } from '../../../(main)/dashboard/_components/sidebar/nav-main'
-import { NavUser } from '../../../(main)/dashboard/_components/sidebar/nav-user'
+import { NavMain } from './nav-main'
+import { NavUser } from './nav-user'
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   user: User
+  displayName?: string | null
 }
 
-export function AppSidebar({ user, ...props }: AppSidebarProps) {
+export function AppSidebar({ user, displayName, ...props }: AppSidebarProps) {
   const { sidebarVariant, sidebarCollapsible, isSynced } = usePreferencesStore(
     useShallow((s) => ({
       sidebarVariant: s.sidebarVariant,
@@ -43,7 +44,7 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
-              <Link prefetch={false} href="/logs">
+              <Link prefetch={false} href="/files">
                 <Command />
                 <span className="font-semibold text-base">{APP_CONFIG.name}</span>
               </Link>
@@ -57,7 +58,7 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
       <SidebarFooter>
         <NavUser
           user={{
-            name: user.email || 'User',
+            name: displayName || user.email || 'User',
             email: user.email || '',
             avatar: '',
           }}

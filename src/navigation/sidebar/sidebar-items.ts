@@ -39,7 +39,7 @@ export const sidebarItems: NavGroup[] = [
     items: [
       {
         title: "Files",
-        url: "/logs",
+        url: "/files",
         icon: FileText,
       },
       {
@@ -55,7 +55,7 @@ export const sidebarItems: NavGroup[] = [
     items: [
       {
         title: "Members",
-        url: "/roster",
+        url: "/members",
         icon: Users,
       },
       {
