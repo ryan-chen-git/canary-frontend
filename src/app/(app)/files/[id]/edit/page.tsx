@@ -1,5 +1,5 @@
 import { notFound, redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase'
+import { createClient } from '@/lib/supabase-server'
 import { EditForm } from './_components/edit-form'
 
 export default async function EditGroupPage({ params }: { params: Promise<{ id: string }> }) {
@@ -8,13 +8,9 @@ export default async function EditGroupPage({ params }: { params: Promise<{ id: 
   
   // Get current user
   const { data: { user } } = await supabase.auth.getUser()
-  // TEMPORARILY DISABLED FOR DEVELOPMENT - Re-enable before production!
-  // if (!user) {
-  //   redirect('/login')
-  // }
-  
-  // MOCK USER FOR DEVELOPMENT - Remove before production!
-  const mockUser = user || { id: 'dev-user-id', email: 'dev@example.com' } as any
+  if (!user) {
+    redirect('/login')
+  }
 
   // Fetch the upload group
   const { data: group, error } = await supabase
@@ -31,12 +27,12 @@ export default async function EditGroupPage({ params }: { params: Promise<{ id: 
   const { data: profile } = await supabase
     .from('profiles')
     .select('role')
-    .eq('id', mockUser.id)
+    .eq('id', user.id)
     .single()
 
   // Check permissions: must be owner, editor, or admin
-  const isOwner = group.uploader_id === mockUser.id
-  const isEditor = group.editors?.includes(mockUser.id) || false
+  const isOwner = group.uploader_id === user.id
+  const isEditor = group.editors?.includes(user.id) || false
   const isAdmin = profile?.role === 'admin'
 
   if (!isOwner && !isEditor && !isAdmin) {

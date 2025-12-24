@@ -2,26 +2,21 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase-server'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { User, Mail, Calendar, Shield } from 'lucide-react'
-import { formatDistanceToNow } from 'date-fns'
+import { EditableProfileCard } from './_components/editable-profile-card'
 
 export default async function SettingsPage() {
   const supabase = await createClient()
 
   const { data: { user } } = await supabase.auth.getUser()
-  // TEMPORARILY DISABLED FOR DEVELOPMENT - Re-enable before production!
-  // if (!user) {
-  //   redirect('/login')
-  // }
-
-  // MOCK USER FOR DEVELOPMENT - Remove before production!
-  const mockUser = user || { id: 'dev-user-id', email: 'dev@example.com' } as any
+  if (!user) {
+    redirect('/login')
+  }
 
   // Fetch user profile
   const { data: profile } = await supabase
     .from('profiles')
     .select('*')
-    .eq('id', mockUser.id)
+    .eq('id', user.id)
     .single()
 
   return (
@@ -31,80 +26,12 @@ export default async function SettingsPage() {
         <p className="text-muted-foreground">Manage your account settings and preferences</p>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Profile Information</CardTitle>
-          <CardDescription>Your account details</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-start gap-3">
-            <User className="h-5 w-5 text-muted-foreground mt-0.5" />
-            <div className="flex-1">
-              <p className="text-sm font-medium">Display Name</p>
-              <p className="text-sm text-muted-foreground">{profile?.display_name || 'Not set'}</p>
-            </div>
-          </div>
-
-          <div className="flex items-start gap-3">
-            <Mail className="h-5 w-5 text-muted-foreground mt-0.5" />
-            <div className="flex-1">
-              <p className="text-sm font-medium">Email</p>
-              <p className="text-sm text-muted-foreground">{mockUser.email}</p>
-            </div>
-          </div>
-
-          <div className="flex items-start gap-3">
-            <Shield className="h-5 w-5 text-muted-foreground mt-0.5" />
-            <div className="flex-1">
-              <p className="text-sm font-medium">Role</p>
-              <div className="mt-1">
-                <Badge variant={
-                  profile?.role === 'admin' ? 'default' :
-                  profile?.role === 'uploader' ? 'secondary' :
-                  'outline'
-                }>
-                  {profile?.role || 'member'}
-                </Badge>
-              </div>
-            </div>
-          </div>
-
-          {profile?.subteam && (
-            <div className="flex items-start gap-3">
-              <User className="h-5 w-5 text-muted-foreground mt-0.5" />
-              <div className="flex-1">
-                <p className="text-sm font-medium">Subteam</p>
-                <p className="text-sm text-muted-foreground">{profile.subteam}</p>
-              </div>
-            </div>
-          )}
-
-          {profile?.graduation_year && (
-            <div className="flex items-start gap-3">
-              <Calendar className="h-5 w-5 text-muted-foreground mt-0.5" />
-              <div className="flex-1">
-                <p className="text-sm font-medium">Graduation Year</p>
-                <p className="text-sm text-muted-foreground">{profile.graduation_year}</p>
-              </div>
-            </div>
-          )}
-
-          <div className="flex items-start gap-3">
-            <Calendar className="h-5 w-5 text-muted-foreground mt-0.5" />
-            <div className="flex-1">
-              <p className="text-sm font-medium">Member Since</p>
-              <p className="text-sm text-muted-foreground">
-                {profile?.created_at ? formatDistanceToNow(new Date(profile.created_at), { addSuffix: true }) : 'Unknown'}
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <EditableProfileCard profile={profile!} userEmail={user.email || ''} />
 
       <Card>
         <CardHeader>
-          <CardTitle>Account Status</CardTitle>
-          <CardDescription>Your current account status</CardDescription>
+          <CardTitle>Membership Status</CardTitle>
+          <CardDescription>Your current team membership status</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center gap-2">
@@ -112,21 +39,9 @@ export default async function SettingsPage() {
               {profile?.status || 'unknown'}
             </Badge>
             <p className="text-sm text-muted-foreground">
-              {profile?.status === 'active' ? 'Your account is active' : 'Your account status'}
+              {profile?.status === 'active' ? 'Active team member' : profile?.status === 'alumni' ? 'Alumni member' : 'Inactive member'}
             </p>
           </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Preferences</CardTitle>
-          <CardDescription>Customize your experience</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground">
-            Preference settings coming soon. This will include options for notifications, display preferences, and more.
-          </p>
         </CardContent>
       </Card>
     </div>

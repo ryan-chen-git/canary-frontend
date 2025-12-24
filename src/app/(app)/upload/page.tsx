@@ -85,22 +85,8 @@ export default function UploadPage() {
         .select()
         .single()
 
-      console.log('Full response:', response)
-      console.log('Response data:', response.data)
-      console.log('Response error:', response.error)
-      console.log('Response status:', response.status)
-      console.log('Response statusText:', response.statusText)
-
       if (response.error) {
-        const err = response.error
-        console.error('Group creation error:', err)
-        console.error('Error type:', typeof err)
-        console.error('Error keys:', Object.keys(err))
-        console.error('Error code:', err.code)
-        console.error('Error message:', err.message)
-        console.error('Error details:', err.details)
-        console.error('Error hint:', err.hint)
-        throw new Error(`Failed to create group: ${err.message || err.code || 'Check console for details'}`)
+        throw new Error(`Failed to create group: ${response.error.message || response.error.code || 'Unknown error'}`)
       }
 
       const group = response.data
@@ -130,7 +116,6 @@ export default function UploadPage() {
           })
 
         if (uploadError) {
-          console.error(`Failed to upload ${file.name}:`, uploadError)
           throw new Error(`Failed to upload ${file.name}: ${uploadError.message}`)
         }
 
@@ -156,7 +141,6 @@ export default function UploadPage() {
         .insert(fileRecords)
 
       if (filesError) {
-        console.error('Failed to create file records:', filesError)
         throw new Error(`Failed to create file records: ${filesError.message}`)
       }
 
@@ -164,17 +148,7 @@ export default function UploadPage() {
       router.push(`/files/${group.id}`)
       
     } catch (err) {
-      console.error('Upload error:', err)
-      console.error('Upload error details:', JSON.stringify(err, null, 2))
-      
-      let errorMessage = 'An error occurred during upload'
-      
-      if (err instanceof Error) {
-        errorMessage = err.message
-      } else if (typeof err === 'object' && err !== null) {
-        errorMessage = JSON.stringify(err)
-      }
-      
+      const errorMessage = err instanceof Error ? err.message : 'An error occurred during upload'
       setError(errorMessage)
       setUploading(false)
     }

@@ -21,13 +21,9 @@ export default async function LogDetailPage({
     data: { user },
   } = await supabase.auth.getUser()
 
-  // TEMPORARILY DISABLED FOR DEVELOPMENT - Re-enable before production!
-  // if (!user) {
-  //   redirect('/login')
-  // }
-  
-  // MOCK USER FOR DEVELOPMENT - Remove before production!
-  const mockUser = user || { id: 'dev-user-id', email: 'dev@example.com' } as any
+  if (!user) {
+    redirect('/login')
+  }
 
   // Fetch the upload group with its files
   const { data: group, error } = await supabase
@@ -54,13 +50,13 @@ export default async function LogDetailPage({
 
   // Get user's role and uploader profile
   const [{ data: profile }, { data: uploaderProfile }] = await Promise.all([
-    supabase.from('profiles').select('role').eq('id', mockUser.id).single(),
+    supabase.from('profiles').select('role').eq('id', user.id).single(),
     supabase.from('profiles').select('display_name, role').eq('id', group.uploader_id).single(),
   ])
 
   const userRole = profile?.role || 'member'
-  const isOwner = group.uploader_id === mockUser.id
-  const isEditor = group.editors?.includes(mockUser.id) || false
+  const isOwner = group.uploader_id === user.id
+  const isEditor = group.editors?.includes(user.id) || false
   const isAdmin = userRole === 'admin'
   const canEdit = isOwner || isEditor || isAdmin
 

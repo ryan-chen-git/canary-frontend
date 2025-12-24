@@ -1,9 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase-server'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Users, UserCheck, Shield } from 'lucide-react'
-import type { Profile } from '@/types/database'
 import { RefreshButton } from './_components/refresh-button'
 import { EmailCopyButton } from './_components/email-copy-button'
 
@@ -11,10 +8,9 @@ export default async function RosterPage() {
   const supabase = await createClient()
 
   const { data: { user } } = await supabase.auth.getUser()
-  // TEMPORARILY DISABLED FOR DEVELOPMENT - Re-enable before production!
-  // if (!user) {
-  //   redirect('/login')
-  // }
+  if (!user) {
+    redirect('/login')
+  }
 
   // Fetch all profiles directly from the table
   const { data: profiles, error: profilesError } = await supabase
@@ -34,7 +30,7 @@ export default async function RosterPage() {
   }
 
   // Create a map of user ID to email
-  const emailMap = new Map(emails?.map(e => [e.id, e.email]) || [])
+  const emailMap = new Map(emails?.map((e: { id: string; email: string }) => [e.id, e.email]) || [])
 
   // Merge profiles with emails
   const profilesWithEmail = (profiles || []).map((profile) => ({
@@ -67,7 +63,7 @@ export default async function RosterPage() {
             </div>
             <div className="flex-1 text-center">
               {profile.email ? (
-                <EmailCopyButton email={profile.email} />
+                <EmailCopyButton email={profile.email as string} />
               ) : (
                 <p className="text-sm text-muted-foreground">No email</p>
               )}

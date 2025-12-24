@@ -3,48 +3,37 @@ import { createClient } from '@/lib/supabase-server'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Shield, Users, Database, Activity } from 'lucide-react'
+import { Shield, Users, Database, Activity, HardDrive } from 'lucide-react'
 import type { Profile } from '@/types/database'
+import { formatBytes } from '@/lib/utils'
 
 export default async function AdminPage() {
   const supabase = await createClient()
 
   const { data: { user } } = await supabase.auth.getUser()
-  // TEMPORARILY DISABLED FOR DEVELOPMENT - Re-enable before production!
-  // if (!user) {
-  //   redirect('/login')
-  // }
-  
-  // MOCK USER ID FOR DEVELOPMENT - Remove before production!
-  const userId = user?.id || 'dev-user-id'
+  if (!user) {
+    redirect('/login')
+  }
 
   // Check if user is admin
   const { data: profile } = await supabase
     .from('profiles')
     .select('role')
-    .eq('id', userId)
+    .eq('id', user.id)
     .single()
 
   if (profile?.role !== 'admin') {
     redirect('/files')
   }
 
-  // Fetch statistics
-  const [
-    { count: totalUsers },
-    { count: totalGroups },
-    { count: totalFiles },
-    { data: recentUsers },
-  ] = await Promise.all([
-    supabase.from('profiles').select('*', { count: 'exact', head: true }),
-    supabase.from('upload_groups').select('*', { count: 'exact', head: true }),
-    supabase.from('upload_files').select('*', { count: 'exact', head: true }),
-    supabase
-      .from('profiles')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(5),
-  ])
+  // Fetch all statistics in one call
+  const { data: stats } = await supabase.rpc('get_admin_stats')
+  
+  const totalUsers = stats?.total_users || 0
+  const totalGroups = stats?.total_groups || 0
+  const totalFiles = stats?.total_files || 0
+  const totalStorage = stats?.total_storage || 0
+  const recentUsers = stats?.recent_users || []
 
   return (
     <div className="@container/main flex flex-col gap-4 md:gap-6">
@@ -90,14 +79,36 @@ export default async function AdminPage() {
         <Card className="py-2">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 px-4 py-2">
             <CardTitle className="text-sm font-medium">Storage</CardTitle>
-            <Shield className="h-4 w-4 text-muted-foreground" />
+            <HardDrive className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent className="px-4 py-0 pb-2">
-            <div className="text-2xl font-bold">-</div>
-            <p className="text-xs text-muted-foreground">Coming soon</p>
+            <div className="text-2xl font-bold">{formatBytes(totalStorage)}</div>
+            <p className="text-xs text-muted-foreground">Total used</p>
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Admin Actions</CardTitle>
+          <CardDescription>Management tools</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          <p className="text-sm text-muted-foreground">
+            User role management and advanced features coming soon.
+          </p>
+          <div className="flex gap-2">
+            <Button variant="outline" disabled>
+              <Shield className="h-4 w-4" />
+              Manage Roles
+            </Button>
+            <Button variant="outline" disabled>
+              <Users className="h-4 w-4" />
+              Bulk Actions
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>
@@ -130,28 +141,6 @@ export default async function AdminPage() {
                 </div>
               </div>
             ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Admin Actions</CardTitle>
-          <CardDescription>Management tools</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-2">
-          <p className="text-sm text-muted-foreground">
-            User role management and advanced features coming soon.
-          </p>
-          <div className="flex gap-2">
-            <Button variant="outline" disabled>
-              <Shield className="h-4 w-4" />
-              Manage Roles
-            </Button>
-            <Button variant="outline" disabled>
-              <Users className="h-4 w-4" />
-              Bulk Actions
-            </Button>
           </div>
         </CardContent>
       </Card>

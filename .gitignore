@@ -38,3 +38,9 @@ next-env.d.ts
 
 # Project guide (internal use only)
 PROJECT_GUIDE.md
+
+# Local database documentation (private)
+documentation/db_functions.local.md
+documentation/schema.local.md
+documentation/functions.local.md
+documentation/policies.local.md

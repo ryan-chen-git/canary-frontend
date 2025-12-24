@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase'
+import { createClient } from '@/lib/supabase-server'
 import type { UploadGroupWithAccess } from '@/types/database'
 import { Button } from '@/components/ui/button'
 import { FilesFilters } from './_components/logs-filters'
@@ -22,19 +22,15 @@ export default async function LogsPage({ searchParams }: LogsPageProps) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // TEMPORARILY DISABLED FOR DEVELOPMENT - Re-enable before production!
-  // if (!user) {
-  //   redirect('/login')
-  // }
-
-  // MOCK USER ID FOR DEVELOPMENT - Remove before production!
-  const userId = user?.id || 'dev-user-id'
+  if (!user) {
+    redirect('/login')
+  }
 
   // Get user's role to determine access
   const { data: profile } = await supabase
     .from('profiles')
     .select('role')
-    .eq('id', userId)
+    .eq('id', user.id)
     .single()
 
   const userRole = profile?.role || 'member'
@@ -85,32 +81,13 @@ export default async function LogsPage({ searchParams }: LogsPageProps) {
 
   const { data: uploadGroups, error, count } = await query
 
-  if (error) {
-    console.error('Error fetching upload groups:', error)
-  }
-
-  console.log('📊 Logs Page Data:', {
-    totalCount: count,
-    groupsReturned: uploadGroups?.length || 0,
-    hasError: !!error,
-    userRole,
-    filters: { search, tag, sort, page }
-  })
-
   // Get all unique tags for filter dropdown
-  const { data: allGroups } = await supabase
-    .from('upload_groups')
-    .select('tags')
-
-  const allTags = new Set<string>()
-  allGroups?.forEach(group => {
-    group.tags?.forEach((t: string) => allTags.add(t))
-  })
+  const { data: allTags } = await supabase.rpc('get_unique_tags')
 
   // Transform data to include access info
   const groupsWithAccess: UploadGroupWithAccess[] = (uploadGroups || []).map(group => {
-    const isOwner = group.uploader_id === userId
-    const isEditor = group.editors?.includes(userId) || false
+    const isOwner = group.uploader_id === user.id
+    const isEditor = group.editors?.includes(user.id) || false
     const isAdmin = userRole === 'admin'
     
     return {
@@ -143,7 +120,7 @@ export default async function LogsPage({ searchParams }: LogsPageProps) {
         search={search}
         tag={tag}
         sort={sort}
-        availableTags={Array.from(allTags).sort()}
+        availableTags={allTags || []}
       />
 
       <FilesTable 

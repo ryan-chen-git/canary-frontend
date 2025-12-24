@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
@@ -33,7 +33,7 @@ export function EditForm({ group, canManageEditors }: EditFormProps) {
   const [editorProfiles, setEditorProfiles] = useState<Record<string, string>>({})
 
   // Load editor profiles on mount
-  useState(() => {
+  useEffect(() => {
     if (editors.length > 0) {
       supabase
         .from('profiles')
@@ -49,7 +49,7 @@ export function EditForm({ group, canManageEditors }: EditFormProps) {
           }
         })
     }
-  })
+  }, [editors, supabase])
 
   const addTag = () => {
     const tag = tagInput.trim()
@@ -92,8 +92,7 @@ export function EditForm({ group, canManageEditors }: EditFormProps) {
       setEditorProfiles(prev => ({ ...prev, [profile.id]: profile.display_name || 'Unknown' }))
       setEditorEmail('')
       
-    } catch (err) {
-      console.error('Error adding editor:', err)
+    } catch {
       setError('Failed to add editor')
     } finally {
       setAddingEditor(false)
@@ -128,7 +127,6 @@ export function EditForm({ group, canManageEditors }: EditFormProps) {
       router.refresh()
       
     } catch (err) {
-      console.error('Save error:', JSON.stringify(err, null, 2))
       setError(err instanceof Error ? err.message : 'An error occurred while saving. You may not have permission to edit this group.')
       setSaving(false)
     }
