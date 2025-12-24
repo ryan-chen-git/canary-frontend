@@ -11,9 +11,10 @@ export default async function RosterPage() {
   const supabase = await createClient()
 
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) {
-    redirect('/login')
-  }
+  // TEMPORARILY DISABLED FOR DEVELOPMENT - Re-enable before production!
+  // if (!user) {
+  //   redirect('/login')
+  // }
 
   // Fetch all profiles directly from the table
   const { data: profiles, error: profilesError } = await supabase

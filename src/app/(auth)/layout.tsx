@@ -8,7 +8,7 @@ export default async function AuthLayout({ children }: { children: ReactNode }) 
     data: { user },
   } = await supabase.auth.getUser()
 
-  // If already logged in, redirect to logs
+  // If already logged in, redirect to files
   if (user) {
     redirect('/files')
   }

@@ -22,7 +22,7 @@ import { NavMain } from './nav-main'
 import { NavUser } from './nav-user'
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
-  user: User
+  user: User | null
   displayName?: string | null
 }
 
@@ -58,8 +58,8 @@ export function AppSidebar({ user, displayName, ...props }: AppSidebarProps) {
       <SidebarFooter>
         <NavUser
           user={{
-            name: displayName || user.email || 'User',
-            email: user.email || '',
+            name: displayName || user?.email || 'User',
+            email: user?.email || 'dev@example.com',
             avatar: '',
           }}
         />

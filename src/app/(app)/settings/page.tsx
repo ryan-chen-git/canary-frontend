@@ -9,15 +9,19 @@ export default async function SettingsPage() {
   const supabase = await createClient()
 
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) {
-    redirect('/login')
-  }
+  // TEMPORARILY DISABLED FOR DEVELOPMENT - Re-enable before production!
+  // if (!user) {
+  //   redirect('/login')
+  // }
+
+  // MOCK USER FOR DEVELOPMENT - Remove before production!
+  const mockUser = user || { id: 'dev-user-id', email: 'dev@example.com' } as any
 
   // Fetch user profile
   const { data: profile } = await supabase
     .from('profiles')
     .select('*')
-    .eq('id', user.id)
+    .eq('id', mockUser.id)
     .single()
 
   return (
@@ -45,7 +49,7 @@ export default async function SettingsPage() {
             <Mail className="h-5 w-5 text-muted-foreground mt-0.5" />
             <div className="flex-1">
               <p className="text-sm font-medium">Email</p>
-              <p className="text-sm text-muted-foreground">{user.email}</p>
+              <p className="text-sm text-muted-foreground">{mockUser.email}</p>
             </div>
           </div>
 

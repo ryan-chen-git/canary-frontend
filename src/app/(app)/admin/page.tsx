@@ -10,15 +10,19 @@ export default async function AdminPage() {
   const supabase = await createClient()
 
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) {
-    redirect('/login')
-  }
+  // TEMPORARILY DISABLED FOR DEVELOPMENT - Re-enable before production!
+  // if (!user) {
+  //   redirect('/login')
+  // }
+  
+  // MOCK USER ID FOR DEVELOPMENT - Remove before production!
+  const userId = user?.id || 'dev-user-id'
 
   // Check if user is admin
   const { data: profile } = await supabase
     .from('profiles')
     .select('role')
-    .eq('id', user.id)
+    .eq('id', userId)
     .single()
 
   if (profile?.role !== 'admin') {

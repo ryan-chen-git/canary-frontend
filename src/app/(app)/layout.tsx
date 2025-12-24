@@ -18,22 +18,34 @@ export default async function AppLayout({ children }: Readonly<{ children: React
     data: { user },
   } = await supabase.auth.getUser()
 
+  // TEMPORARILY DISABLED FOR DEVELOPMENT - Re-enable before production!
   // If not logged in, redirect to login
-  if (!user) {
-    redirect('/login')
-  }
+  // if (!user) {
+  //   redirect('/login')
+  // }
+
+  // MOCK USER FOR DEVELOPMENT - Remove before production!
+  const mockUser = user || {
+    id: 'dev-user-id',
+    email: 'dev@example.com',
+    aud: 'authenticated',
+    role: 'authenticated',
+    created_at: new Date().toISOString(),
+    app_metadata: {},
+    user_metadata: {},
+  } as any
 
   const cookieStore = await cookies()
   const defaultOpen = cookieStore.get('sidebar_state')?.value !== 'false'
   const [{ data: profile }, variant, collapsible] = await Promise.all([
-    supabase.from('profiles').select('*').eq('id', user.id).single(),
+    user ? supabase.from('profiles').select('*').eq('id', user.id).single() : Promise.resolve({ data: { display_name: 'Dev User' } }),
     getPreference('sidebar_variant', SIDEBAR_VARIANT_VALUES, 'inset'),
     getPreference('sidebar_collapsible', SIDEBAR_COLLAPSIBLE_VALUES, 'icon'),
   ])
 
   return (
     <SidebarProvider defaultOpen={defaultOpen} suppressHydrationWarning>
-      <AppSidebar variant={variant} collapsible={collapsible} user={user} displayName={profile?.display_name} />
+      <AppSidebar variant={variant} collapsible={collapsible} user={mockUser} displayName={profile?.display_name} />
       <SidebarInset
         className={cn(
           '[html[data-content-layout=centered]_&]:mx-auto! [html[data-content-layout=centered]_&]:max-w-screen-2xl!',
@@ -54,7 +66,7 @@ export default async function AppLayout({ children }: Readonly<{ children: React
             </div>
             <div className="flex items-center gap-2">
               <ThemeSwitcher />
-              <UserAccountMenu user={{ ...user, display_name: profile?.display_name }} />
+              <UserAccountMenu user={{ ...mockUser, display_name: profile?.display_name }} />
             </div>
           </div>
         </header>

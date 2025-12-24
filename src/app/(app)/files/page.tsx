@@ -22,15 +22,19 @@ export default async function LogsPage({ searchParams }: LogsPageProps) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (!user) {
-    redirect('/login')
-  }
+  // TEMPORARILY DISABLED FOR DEVELOPMENT - Re-enable before production!
+  // if (!user) {
+  //   redirect('/login')
+  // }
+
+  // MOCK USER ID FOR DEVELOPMENT - Remove before production!
+  const userId = user?.id || 'dev-user-id'
 
   // Get user's role to determine access
   const { data: profile } = await supabase
     .from('profiles')
     .select('role')
-    .eq('id', user.id)
+    .eq('id', userId)
     .single()
 
   const userRole = profile?.role || 'member'
@@ -105,8 +109,8 @@ export default async function LogsPage({ searchParams }: LogsPageProps) {
 
   // Transform data to include access info
   const groupsWithAccess: UploadGroupWithAccess[] = (uploadGroups || []).map(group => {
-    const isOwner = group.uploader_id === user.id
-    const isEditor = group.editors?.includes(user.id) || false
+    const isOwner = group.uploader_id === userId
+    const isEditor = group.editors?.includes(userId) || false
     const isAdmin = userRole === 'admin'
     
     return {
